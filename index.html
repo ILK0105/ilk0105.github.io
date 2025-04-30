@@ -1,38 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Auto HTML Explorer</title>
+  <meta charset="UTF-8" />
+  <title>Auto GitHub File Explorer</title>
 </head>
 <body>
-  <h1>📁 자동 HTML 파일 목록</h1>
+  <h1>📁 GitHub 파일 탐색기</h1>
+  <div id="path"></div>
   <ul id="file-list">Loading...</ul>
 
   <script>
-    const username = "ILK0105";             // ✅ 본인 GitHub ID
-    const repo = "ilk0105.github.io";       // ✅ 본인 레포 이름
+    const username = "ILK0105";
+    const repo = "ilk0105.github.io";
     const branch = "main";
-    const siteBaseUrl = `https://${username}.github.io/`; // 최종 연결 주소
+    const siteBase = `https://${username}.github.io/`;
+    let currentPath = "";
 
-    async function fetchFiles() {
-      const res = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/?ref=${branch}`);
+    function updatePathDisplay() {
+      const pathDiv = document.getElementById("path");
+      if (!currentPath) {
+        pathDiv.innerHTML = `<strong>현재 위치:</strong> /`;
+      } else {
+        const parts = currentPath.split('/');
+        const links = parts.map((part, i) => {
+          const subPath = parts.slice(0, i + 1).join('/');
+          return `<a href="#" onclick="navigateTo('${subPath}')">${part}</a>`;
+        });
+        pathDiv.innerHTML = `<strong>현재 위치:</strong> / ${links.join(" / ")}`;
+      }
+    }
+
+    async function fetchFiles(path = "") {
+      currentPath = path;
+      updatePathDisplay();
+      const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}?ref=${branch}`;
+      const res = await fetch(url);
       const data = await res.json();
       const ul = document.getElementById("file-list");
       ul.innerHTML = "";
 
+      // 상위로 가는 링크
+      if (path) {
+        const upPath = path.split("/").slice(0, -1).join("/");
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="#" onclick="navigateTo('${upPath}')">⬅️ .. (상위 폴더)</a>`;
+        ul.appendChild(li);
+      }
+
       data.forEach(file => {
-        if (file.name.endsWith(".html") && file.name !== "index.html") {
-          const li = document.createElement("li");
-          const a = document.createElement("a");
-          a.href = siteBaseUrl + file.name;      // 📌 github.io 주소로 직접 연결
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+
+        if (file.type === "dir") {
+          a.href = "#";
+          a.textContent = `📂 ${file.name}/`;
+          a.onclick = () => {
+            navigateTo(path ? `${path}/${file.name}` : file.name);
+          };
+        } else if (file.name.endsWith(".html")) {
+          a.href = siteBase + (path ? `${path}/` : "") + file.name;
           a.textContent = `▶ ${file.name}`;
           a.target = "_blank";
-          li.appendChild(a);
-          ul.appendChild(li);
+        } else {
+          return; // 다른 파일은 무시
         }
+
+        li.appendChild(a);
+        ul.appendChild(li);
       });
     }
 
+    function navigateTo(path) {
+      fetchFiles(path);
+    }
+
+    // 첫 로딩
     fetchFiles();
   </script>
 </body>
