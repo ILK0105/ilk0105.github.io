@@ -15,7 +15,7 @@
     const path = "";                      // 탐색할 경로 ("" = 루트)
 
     async function fetchFiles() {
-      const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}?ref=${branch}`;
+      const url = `https://github.com/ILK0105/ilk0105.github.io.git`;
       const res = await fetch(url);
       const data = await res.json();
       const ul = document.getElementById("file-list");
