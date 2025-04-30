@@ -1,10 +1,38 @@
-<!-- 예시 index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>My Portfolio</title>
+  <meta charset="UTF-8">
+  <title>File Explorer</title>
 </head>
 <body>
-  <h1>Hello GitHub Pages!</h1>
+  <h1>📁 My GitHub Files</h1>
+  <ul id="file-list">Loading...</ul>
+
+  <script>
+    const username = "ilk0105";           // 사용자명
+    const repo = "ilk0105.github.io";     // 레포지토리 이름
+    const branch = "main";                // 브랜치 이름
+    const path = "";                      // 탐색할 경로 ("" = 루트)
+
+    async function fetchFiles() {
+      const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}?ref=${branch}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const ul = document.getElementById("file-list");
+      ul.innerHTML = ""; // 기존 'Loading...' 제거
+
+      data.forEach(item => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = item.html_url;
+        a.textContent = item.type === "dir" ? `📂 ${item.name}/` : `📄 ${item.name}`;
+        a.target = "_blank";
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+    }
+
+    fetchFiles();
+  </script>
 </body>
 </html>
