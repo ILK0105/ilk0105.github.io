@@ -2,33 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>File Explorer</title>
+  <title>Auto HTML Explorer</title>
 </head>
 <body>
-  <h1>📁 My GitHub Files</h1>
+  <h1>📁 자동 HTML 파일 목록</h1>
   <ul id="file-list">Loading...</ul>
 
   <script>
-    const username = "ilk0105";           // 사용자명
-    const repo = "ilk0105.github.io";     // 레포지토리 이름
-    const branch = "main";                // 브랜치 이름
-    const path = "";                      // 탐색할 경로 ("" = 루트)
+    const username = "ilk0105";             // ✅ 본인 GitHub ID
+    const repo = "ilk0105.github.io";       // ✅ 본인 레포 이름
+    const branch = "main";
+    const siteBaseUrl = `https://${username}.github.io/`; // 최종 연결 주소
 
     async function fetchFiles() {
-      const url = `https://github.com/ILK0105/ilk0105.github.io.git`;
-      const res = await fetch(url);
+      const res = await fetch(`https://api.github.com/repos/${username}/${repo}/contents/?ref=${branch}`);
       const data = await res.json();
       const ul = document.getElementById("file-list");
-      ul.innerHTML = ""; // 기존 'Loading...' 제거
+      ul.innerHTML = "";
 
-      data.forEach(item => {
-        const li = document.createElement("li");
-        const a = document.createElement("a");
-        a.href = item.html_url;
-        a.textContent = item.type === "dir" ? `📂 ${item.name}/` : `📄 ${item.name}`;
-        a.target = "_blank";
-        li.appendChild(a);
-        ul.appendChild(li);
+      data.forEach(file => {
+        if (file.name.endsWith(".html") && file.name !== "index.html") {
+          const li = document.createElement("li");
+          const a = document.createElement("a");
+          a.href = siteBaseUrl + file.name;      // 📌 github.io 주소로 직접 연결
+          a.textContent = `▶ ${file.name}`;
+          a.target = "_blank";
+          li.appendChild(a);
+          ul.appendChild(li);
+        }
       });
     }
 
