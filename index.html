@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Auto GitHub File Explorer</title>
+  <title>Auto GitHub HTML Explorer</title>
 </head>
 <body>
-  <h1>📁 GitHub 파일 탐색기</h1>
+  <h1>📁 GitHub HTML 탐색기</h1>
   <div id="path"></div>
   <ul id="file-list">Loading...</ul>
 
   <script>
-    const username = "ILK0105";
+    const username = "ILK0105";  // 본인 ID
     const repo = "ilk0105.github.io";
     const branch = "main";
     const siteBase = `https://${username}.github.io/`;
@@ -19,14 +19,14 @@
     function updatePathDisplay() {
       const pathDiv = document.getElementById("path");
       if (!currentPath) {
-        pathDiv.innerHTML = `<strong>현재 위치:</strong> /`;
+        pathDiv.innerHTML = `<strong>📂 현재 위치:</strong> /`;
       } else {
         const parts = currentPath.split('/');
         const links = parts.map((part, i) => {
           const subPath = parts.slice(0, i + 1).join('/');
           return `<a href="#" onclick="navigateTo('${subPath}')">${part}</a>`;
         });
-        pathDiv.innerHTML = `<strong>현재 위치:</strong> / ${links.join(" / ")}`;
+        pathDiv.innerHTML = `<strong>📂 현재 위치:</strong> / ${links.join(" / ")}`;
       }
     }
 
@@ -39,7 +39,7 @@
       const ul = document.getElementById("file-list");
       ul.innerHTML = "";
 
-      // 상위로 가는 링크
+      // ⬅️ 상위 폴더 링크
       if (path) {
         const upPath = path.split("/").slice(0, -1).join("/");
         const li = document.createElement("li");
@@ -52,17 +52,18 @@
         const a = document.createElement("a");
 
         if (file.type === "dir") {
+          // ✅ 폴더 표시
           a.href = "#";
           a.textContent = `📂 ${file.name}/`;
-          a.onclick = () => {
-            navigateTo(path ? `${path}/${file.name}` : file.name);
-          };
+          a.onclick = () => navigateTo(path ? `${path}/${file.name}` : file.name);
         } else if (file.name.endsWith(".html")) {
+          // ✅ HTML 파일 표시
           a.href = siteBase + (path ? `${path}/` : "") + file.name;
           a.textContent = `▶ ${file.name}`;
           a.target = "_blank";
         } else {
-          return; // 다른 파일은 무시
+          // ❌ 그 외 파일은 목록에 안 보이게 (필요하면 여기서 확장 가능)
+          return;
         }
 
         li.appendChild(a);
@@ -74,7 +75,6 @@
       fetchFiles(path);
     }
 
-    // 첫 로딩
     fetchFiles();
   </script>
 </body>
